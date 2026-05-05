@@ -24,6 +24,7 @@ import com.masterdog.app.ui.features.pets.PetsViewModel
 import com.masterdog.app.ui.features.profile.UserProfileEditScreen
 import com.masterdog.app.ui.features.profile.UserProfileScreen
 import com.masterdog.app.ui.features.profile.UserProfileViewModel
+import com.masterdog.app.ui.features.services.ServiceCatalogScreen
 import com.masterdog.app.ui.shared.components.BottomBar
 
 // Rutas donde se muestra el BottomBar
@@ -119,6 +120,11 @@ fun MasterDogNavGraph(
                     petId = backStack.arguments?.getString("petId") ?: "",
                     petsViewModel = petsViewModel
                 )
+            }
+
+            // ── SERVICIOS ─────────────────────────────────────────────────────
+            composable(Screen.ServiceCatalog.route) {
+                ServiceCatalogScreen(navController = navController)
             }
         }
     }
