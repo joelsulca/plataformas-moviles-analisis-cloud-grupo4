@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.masterdog.app.ui.features.appointments.AppointmentsViewModel
 import com.masterdog.app.ui.features.auth.LoginScreen
 import com.masterdog.app.ui.features.auth.RegisterScreen
+import com.masterdog.app.ui.features.home.HomeScreen
 import com.masterdog.app.ui.features.pets.PetAddScreen
 import com.masterdog.app.ui.features.pets.PetEditScreen
 import com.masterdog.app.ui.features.pets.PetListScreen
@@ -71,6 +72,14 @@ fun MasterDogNavGraph(
             composable(Screen.Register.route) {
                 RegisterScreen(navController = navController)
             }
+
+            composable(Screen.Home.route) {
+                HomeScreen(
+                    navController = navController,
+                    appointmentsViewModel = appointmentsViewModel
+                )
+            }
+
             // ── PERFIL ────────────────────────────────────────────────────────
             composable(Screen.UserProfile.route) {
                 UserProfileScreen(
