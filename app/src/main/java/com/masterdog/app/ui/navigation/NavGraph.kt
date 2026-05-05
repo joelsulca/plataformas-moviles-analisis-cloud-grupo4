@@ -7,12 +7,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.masterdog.app.ui.features.appointments.AppointmentsViewModel
 import com.masterdog.app.ui.features.auth.LoginScreen
 import com.masterdog.app.ui.features.auth.RegisterScreen
+import com.masterdog.app.ui.features.pets.PetAddScreen
+import com.masterdog.app.ui.features.pets.PetEditScreen
+import com.masterdog.app.ui.features.pets.PetListScreen
+import com.masterdog.app.ui.features.pets.PetsViewModel
 import com.masterdog.app.ui.features.profile.UserProfileEditScreen
 import com.masterdog.app.ui.features.profile.UserProfileScreen
 import com.masterdog.app.ui.features.profile.UserProfileViewModel
@@ -30,6 +37,8 @@ private val bottomBarRoutes = setOf(
 fun MasterDogNavGraph(
     navController: NavHostController = rememberNavController()
 ) {
+    val petsViewModel: PetsViewModel = viewModel()
+    val appointmentsViewModel: AppointmentsViewModel = viewModel()
     val profileViewModel: UserProfileViewModel = viewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -74,6 +83,32 @@ fun MasterDogNavGraph(
                 UserProfileEditScreen(
                     navController = navController,
                     profileViewModel = profileViewModel
+                )
+            }
+            // ── MASCOTAS ──────────────────────────────────────────────────────
+            composable(Screen.PetList.route) {
+                PetListScreen(
+                    navController = navController,
+                    petsViewModel = petsViewModel,
+                    appointmentsViewModel = appointmentsViewModel
+                )
+            }
+
+            composable(Screen.PetAdd.route) {
+                PetAddScreen(
+                    navController = navController,
+                    petsViewModel = petsViewModel
+                )
+            }
+
+            composable(
+                route = Screen.PetEdit.route,
+                arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            ) { backStack ->
+                PetEditScreen(
+                    navController = navController,
+                    petId = backStack.arguments?.getString("petId") ?: "",
+                    petsViewModel = petsViewModel
                 )
             }
         }
