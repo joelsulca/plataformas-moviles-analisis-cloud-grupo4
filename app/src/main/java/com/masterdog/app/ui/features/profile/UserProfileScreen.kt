@@ -19,6 +19,8 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -27,7 +29,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -44,6 +51,7 @@ fun UserProfileScreen(
     profileViewModel: UserProfileViewModel = viewModel()
 ) {
     val user = profileViewModel.user
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { TopBar(title = "Mi perfil", colored = true) }
@@ -65,7 +73,7 @@ fun UserProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "${user.firstName.first()}${user.lastName.first()}",
+                    text = "${user.firstName.firstOrNull() ?: '-'}${user.lastName.firstOrNull() ?: '-'}",
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -111,6 +119,68 @@ fun UserProfileScreen(
                 Text("Editar perfil", style = MaterialTheme.typography.titleMedium)
             }
             Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    showLogoutDialog = true
+
+                },
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(50.dp)
+            ) {
+                Text(
+                    text = "Cerrar sesión",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+
+
+                )
+            }
+
+            if (showLogoutDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showLogoutDialog = false
+                    },
+                    title = {
+                        Text("Cerrar sesión")
+                    },
+                    text = {
+                        Text("¿Seguro que deseas cerrar sesión?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showLogoutDialog = false
+
+                                profileViewModel.logout()
+
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(0)
+                                }
+                            }
+                        ) {
+                            Text("Sí, salir", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showLogoutDialog = false
+                            }
+                        ) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
+
+
+
+
         }
     }
 }

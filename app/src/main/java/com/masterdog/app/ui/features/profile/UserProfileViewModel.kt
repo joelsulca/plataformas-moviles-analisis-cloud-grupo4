@@ -14,4 +14,15 @@ class UserProfileViewModel : ViewModel() {
     fun updateUser(updated: UserUi) {
         user = updated
     }
+
+    fun logout() {
+        user = UserUi(
+            id = "",
+            firstName = "",
+            lastName = "",
+            email = "",
+            phone = "",
+            address = ""
+        )
+    }
 }

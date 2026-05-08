@@ -97,7 +97,7 @@ fun HomeScreen(
                             )
                         }
                         Image(
-                            painter = painterResource(R.drawable.masterdog_logo),
+                            painter = painterResource(R.drawable.logo_master_new),
                             contentDescription = "MasterDog",
                             modifier = Modifier.size(90.dp)
                         )
