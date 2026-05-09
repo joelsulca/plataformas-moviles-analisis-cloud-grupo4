@@ -193,8 +193,6 @@ fun AppointmentStep4Screen(
                             snackbarHostState.showSnackbar("¡Cita agendada exitosamente!")
                         }
                         navController.navigate(Screen.AppointmentList.route) {
-                            // Limpia todo el wizard + cualquier AppointmentList previo,
-                            // dejando el backstack como [Home → AppointmentList]
                             popUpTo(Screen.Home.route) { inclusive = false }
                             launchSingleTop = true
                         }

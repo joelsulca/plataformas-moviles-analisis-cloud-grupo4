@@ -100,7 +100,7 @@ fun LoginScreen(navController: NavController) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(
-                        painter = painterResource(R.drawable.masterdog_logo),
+                        painter = painterResource(R.drawable.logo_master_new),
                         contentDescription = "MasterDog",
                         modifier = Modifier.size(180.dp)
                     )
