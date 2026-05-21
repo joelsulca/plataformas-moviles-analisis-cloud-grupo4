@@ -35,9 +35,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.AppointmentStatus
-import com.masterdog.app.mock.AppointmentUi
-import com.masterdog.app.mock.MockData
 import com.masterdog.app.ui.features.pets.PetsViewModel
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.TopBar
@@ -60,15 +57,10 @@ fun AppointmentStep4Screen(
     var reasonError by remember { mutableStateOf<String?>(null) }
 
     val pet = pets.find { it.id == bookingViewModel.selectedPetId }
-    val service = MockData.serviceById(bookingViewModel.selectedServiceId ?: "")
+    val service = bookingViewModel.serviceById(bookingViewModel.selectedServiceId)
     val dateStr = bookingViewModel.selectedDate ?: ""
     val timeStr = bookingViewModel.selectedTime ?: ""
     val resolvedVetName = bookingViewModel.resolvedVetName()
-
-    val dateFormatted = try {
-        val d = LocalDate.parse(dateStr)
-        d.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es", "PE")))
-    } catch (e: Exception) { dateStr }
 
     val dayNumber = try { LocalDate.parse(dateStr).dayOfMonth.toString() } catch (e: Exception) { "--" }
     val monthShort = try {
@@ -176,25 +168,15 @@ fun AppointmentStep4Screen(
                             reasonError = "El motivo es obligatorio"
                             return@Button
                         }
-                        val newApt = AppointmentUi(
-                            id = "apt-${System.currentTimeMillis()}",
-                            petId = pet?.id ?: "",
-                            petName = pet?.name ?: "",
-                            serviceId = service?.id ?: "",
-                            serviceName = service?.name ?: "",
-                            vetName = resolvedVetName,
-                            date = dateStr,
-                            time = timeStr,
-                            status = AppointmentStatus.UPCOMING,
-                            reason = bookingViewModel.reason
-                        )
-                        appointmentsViewModel.addAppointment(newApt)
-                        scope.launch {
-                            snackbarHostState.showSnackbar("¡Cita agendada exitosamente!")
-                        }
-                        navController.navigate(Screen.AppointmentList.route) {
-                            popUpTo(Screen.Home.route) { inclusive = false }
-                            launchSingleTop = true
+                        bookingViewModel.submitAppointment { newApt ->
+                            appointmentsViewModel.addAppointment(newApt)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("¡Cita agendada exitosamente!")
+                            }
+                            navController.navigate(Screen.AppointmentList.route) {
+                                popUpTo(Screen.Home.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp)

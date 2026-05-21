@@ -24,12 +24,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.MockData
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.TopBar
 import com.masterdog.app.ui.shared.components.StepProgressIndicator
@@ -43,6 +45,17 @@ fun AppointmentStep3Screen(
     navController: NavController,
     bookingViewModel: AppointmentBookingViewModel = viewModel()
 ) {
+    val vets by bookingViewModel.vets.collectAsState()
+    val slots by bookingViewModel.slots.collectAsState()
+    val loadingSlots by bookingViewModel.loadingSlots.collectAsState()
+
+    // Recargar slots cuando cambian vet o fecha.
+    LaunchedEffect(bookingViewModel.selectedVetId, bookingViewModel.selectedDate) {
+        if (bookingViewModel.selectedVetId != null && bookingViewModel.selectedDate != null) {
+            bookingViewModel.reloadSlots()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -73,7 +86,7 @@ fun AppointmentStep3Screen(
                 }
                 item {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(MockData.vets) { vet ->
+                        items(vets) { vet ->
                             val isSelected = bookingViewModel.selectedVetId == vet.id
                             Card(
                                 modifier = Modifier
@@ -176,8 +189,14 @@ fun AppointmentStep3Screen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                        loadingSlots -> {
+                            Text(
+                                "Cargando horarios disponibles…",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         else -> {
-                            val slots = bookingViewModel.currentSlots()
                             if (slots.isEmpty()) {
                                 Text(
                                     "No hay horarios disponibles para este día",

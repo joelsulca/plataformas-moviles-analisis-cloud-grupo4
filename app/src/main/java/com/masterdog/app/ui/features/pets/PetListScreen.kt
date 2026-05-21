@@ -28,6 +28,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,11 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.AppointmentStatus
-import com.masterdog.app.mock.PetUi
+import com.masterdog.app.data.AppointmentStatus
+import com.masterdog.app.data.PetUi
 import com.masterdog.app.ui.features.appointments.AppointmentsViewModel
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.EmptyStateView
@@ -58,6 +62,19 @@ fun PetListScreen(
     val appointments by appointmentsViewModel.appointments.collectAsState()
     var selectedPetId by remember { mutableStateOf<String?>(null) }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Recarga mascotas cada vez que la pantalla es visible (incluido primer acceso post-login)
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            petsViewModel.refresh()
+            // Cuando pets se actualice, el LaunchedEffect de appointments en este mismo
+            // screen disparará la carga de citas a través del collect de pets.
+            petsViewModel.pets.collect { petList ->
+                appointmentsViewModel.loadForPets(petList.map { it.id })
+            }
+        }
+    }
 
     val selectedPet: PetUi? = pets.find { it.id == selectedPetId } ?: pets.firstOrNull()
 
@@ -211,7 +228,7 @@ private fun PetInfoRow(label: String, value: String) {
 }
 
 @Composable
-private fun PetVisitsTab(appointments: List<com.masterdog.app.mock.AppointmentUi>) {
+private fun PetVisitsTab(appointments: List<com.masterdog.app.data.AppointmentUi>) {
     if (appointments.isEmpty()) {
         EmptyStateView(
             icon = Icons.Outlined.CalendarToday,

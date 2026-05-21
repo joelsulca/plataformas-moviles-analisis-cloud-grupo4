@@ -33,11 +33,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,7 +57,10 @@ import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.ConfirmationDialog
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -64,6 +70,15 @@ fun LoginScreen(navController: NavController) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val loading by authViewModel.loading.collectAsState()
+    val authError by authViewModel.error.collectAsState()
+
+    LaunchedEffect(authError) {
+        authError?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.consumeError()
+        }
+    }
 
     fun validate(): Boolean {
         emailError = if (email.isBlank()) "El correo es obligatorio" else null
@@ -188,17 +203,23 @@ fun LoginScreen(navController: NavController) {
                     Button(
                         onClick = {
                             if (validate()) {
-                                navController.navigate(Screen.Home.route) {
-                                    popUpTo(Screen.Login.route) { inclusive = true }
+                                authViewModel.login(email.trim(), password) {
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
+                                    }
                                 }
                             }
                         },
+                        enabled = !loading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Ingresar", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            if (loading) "Ingresando…" else "Ingresar",
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 

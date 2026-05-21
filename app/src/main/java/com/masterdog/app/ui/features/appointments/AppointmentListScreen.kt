@@ -30,6 +30,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,12 +40,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.AppointmentStatus
-import com.masterdog.app.mock.AppointmentUi
+import com.masterdog.app.data.AppointmentStatus
+import com.masterdog.app.data.AppointmentUi
 import com.masterdog.app.ui.features.pets.PetsViewModel
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.ConfirmationDialog
@@ -62,6 +66,18 @@ fun AppointmentListScreen(
 ) {
     val appointments by appointmentsViewModel.appointments.collectAsState()
     val pets by petsViewModel.pets.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Recarga mascotas y luego citas en cada RESUME (primer acceso post-login incluido)
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            petsViewModel.refresh()
+            petsViewModel.pets.collect { petList ->
+                appointmentsViewModel.loadForPets(petList.map { it.id })
+            }
+        }
+    }
+
     var selectedPetId by remember { mutableStateOf<String?>(null) }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var appointmentToCancel by remember { mutableStateOf<AppointmentUi?>(null) }

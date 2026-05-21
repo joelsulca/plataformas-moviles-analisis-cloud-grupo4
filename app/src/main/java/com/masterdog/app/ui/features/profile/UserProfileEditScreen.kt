@@ -37,7 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.UserUi
+import com.masterdog.app.data.UserUi
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,11 +88,12 @@ fun UserProfileEditScreen(
                                     phone = phone,
                                     address = address
                                 )
-                            )
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Perfil actualizado correctamente")
+                            ) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Perfil actualizado correctamente")
+                                }
+                                navController.popBackStack()
                             }
-                            navController.popBackStack()
                         }
                     }) {
                         Icon(Icons.Outlined.Check, contentDescription = "Guardar")

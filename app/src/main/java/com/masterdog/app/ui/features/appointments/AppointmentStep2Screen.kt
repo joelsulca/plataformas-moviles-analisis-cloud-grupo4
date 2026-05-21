@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.MockData
-import com.masterdog.app.mock.ServiceCategory
-import com.masterdog.app.mock.ServiceUi
+import com.masterdog.app.data.ServiceCategory
+import com.masterdog.app.data.ServiceUi
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.TopBar
 import com.masterdog.app.ui.shared.components.StepProgressIndicator
@@ -49,8 +49,9 @@ fun AppointmentStep2Screen(
     bookingViewModel: AppointmentBookingViewModel = viewModel()
 ) {
     var query by remember { mutableStateOf("") }
+    val services by bookingViewModel.services.collectAsState()
 
-    val filtered = MockData.services.filter {
+    val filtered = services.filter {
         query.isBlank() || it.name.contains(query, ignoreCase = true)
     }
     val medical = filtered.filter { it.category == ServiceCategory.MEDICAL }

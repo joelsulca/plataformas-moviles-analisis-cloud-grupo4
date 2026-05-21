@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.PetUi
+import com.masterdog.app.data.PetUi
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.ConfirmationDialog
 import com.masterdog.app.ui.shared.components.TopBar
@@ -67,10 +67,11 @@ fun PetEditScreen(
             message = "¿Eliminar a ${pet?.name}? Esta acción no se puede deshacer.",
             confirmText = "Sí, eliminar",
             onConfirm = {
-                petsViewModel.deletePet(petId)
                 showDeleteDialog = false
-                navController.navigate(Screen.PetList.route) {
-                    popUpTo(Screen.PetList.route) { inclusive = true }
+                petsViewModel.deletePet(petId) {
+                    navController.navigate(Screen.PetList.route) {
+                        popUpTo(Screen.PetList.route) { inclusive = true }
+                    }
                 }
             },
             onDismiss = { showDeleteDialog = false }
@@ -124,11 +125,12 @@ fun PetEditScreen(
                                     neuteredStatus = validated.neuteredStatus,
                                     bloodType = validated.bloodType
                                 )
-                                petsViewModel.updatePet(updated)
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Perfil actualizado")
+                                petsViewModel.updatePet(updated) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Perfil actualizado")
+                                    }
+                                    navController.popBackStack()
                                 }
-                                navController.popBackStack()
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(50.dp)
