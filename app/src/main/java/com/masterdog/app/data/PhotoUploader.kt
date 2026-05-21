@@ -11,10 +11,6 @@ object PhotoUploader {
 
     private val client = OkHttpClient()
 
-    /**
-     * Sube [bytes] a S3 vía presigned URL y retorna la URL pública del objeto.
-     * Devuelve "" si el endpoint aún no existe o falla la subida (no bloquea el flujo).
-     */
     suspend fun upload(fileName: String, bytes: ByteArray, mimeType: String): String {
         return try {
             val result = ApiClient.api.getPresignedUrl(fileName).data
@@ -29,7 +25,7 @@ object PhotoUploader {
                 }
             }
         } catch (e: Exception) {
-            ""   // backend pendiente — no bloquear flujo
+            ""
         }
     }
 }

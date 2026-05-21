@@ -61,7 +61,6 @@ fun UserProfileScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Sincroniza el perfil con Session cada vez que la pantalla se vuelve visible
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             profileViewModel.refreshFromSession()
@@ -80,7 +79,6 @@ fun UserProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Avatar
             if (user.photoUrl.isNotBlank()) {
                 AsyncImage(
                     model = user.photoUrl,

@@ -58,8 +58,8 @@ data class PetFormState(
     val bloodType: String = "No probado",
     val nameError: String? = null,
     val speciesError: String? = null,
-    val photoUrl: String = "",      // URL existente cargada del servidor
-    val photoUri: Uri? = null       // URI local elegida desde galería (runtime)
+    val photoUrl: String = "",
+    val photoUri: Uri? = null
 )
 
 private val GENDERS = listOf("Macho", "Hembra")
@@ -93,7 +93,6 @@ fun PetFormContent(
 
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        // Foto avatar con galería
         Box(
             modifier = Modifier
                 .size(96.dp)
@@ -127,7 +126,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Nombre
         OutlinedTextField(
             value = state.name,
             onValueChange = { onStateChange(state.copy(name = it, nameError = null)) },
@@ -139,7 +137,6 @@ fun PetFormContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Género
         ExposedDropdownMenuBox(
             expanded = genderExpanded,
             onExpandedChange = { genderExpanded = it },
@@ -167,7 +164,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Especie
         ExposedDropdownMenuBox(
             expanded = speciesExpanded,
             onExpandedChange = { speciesExpanded = it },
@@ -197,7 +193,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Raza
         OutlinedTextField(
             value = state.breed,
             onValueChange = { onStateChange(state.copy(breed = it)) },
@@ -207,7 +202,6 @@ fun PetFormContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Colores
         Text("Color", style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(8.dp))
@@ -234,7 +228,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Edad
         Text("Edad", style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(8.dp))
@@ -261,7 +254,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sección salud
         Text(
             text = "SALUD",
             style = MaterialTheme.typography.labelLarge,
@@ -273,7 +265,6 @@ fun PetFormContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Esterilización
         ExposedDropdownMenuBox(
             expanded = neuteredExpanded,
             onExpandedChange = { neuteredExpanded = it },
@@ -301,7 +292,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Peso
         OutlinedTextField(
             value = state.weightKg,
             onValueChange = { onStateChange(state.copy(weightKg = it)) },
@@ -313,7 +303,6 @@ fun PetFormContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Tipo de sangre
         ExposedDropdownMenuBox(
             expanded = bloodExpanded,
             onExpandedChange = { bloodExpanded = it },
@@ -341,7 +330,6 @@ fun PetFormContent(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Alergias
         OutlinedTextField(
             value = state.allergies,
             onValueChange = { onStateChange(state.copy(allergies = it)) },

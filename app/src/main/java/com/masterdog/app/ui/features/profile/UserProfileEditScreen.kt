@@ -169,7 +169,6 @@ fun UserProfileEditScreen(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
         ) {
             item {
-                // Avatar con selector de galería — centrado horizontalmente
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
@@ -202,7 +201,6 @@ fun UserProfileEditScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    // Ícono de cámara superpuesto
                     Box(
                         modifier = Modifier
                             .size(26.dp)
@@ -218,8 +216,8 @@ fun UserProfileEditScreen(
                             modifier = Modifier.size(16.dp)
                         )
                     }
-                } // inner Box (avatar)
-                } // outer Box (centering)
+                }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SectionTitle("CONTACTO")
@@ -279,7 +277,6 @@ fun UserProfileEditScreen(
                 SectionTitle("ID")
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Correo no editable
                 OutlinedTextField(
                     value = user.email,
                     onValueChange = {},

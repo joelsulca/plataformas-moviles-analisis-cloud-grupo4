@@ -51,7 +51,6 @@ fun PetEditScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Precarga el formulario con los datos actuales
     LaunchedEffect(pet) {
         pet?.let {
             formState = PetFormState(
