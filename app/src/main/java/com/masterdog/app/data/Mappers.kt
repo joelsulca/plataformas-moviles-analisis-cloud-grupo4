@@ -46,7 +46,8 @@ fun UserDto.toUi(): UserUi = UserUi(
     lastName = lastName.orEmpty(),
     email = email.orEmpty(),
     phone = phone.orEmpty(),
-    address = address.orEmpty()
+    address = address.orEmpty(),
+    photoUrl = photoUrl.orEmpty()
 )
 
 // ── PET ─────────────────────────────────────────────────────────────────────
@@ -79,7 +80,8 @@ fun PetDto.toUi(): PetUi {
         weightKg = weightKg.toFloatOrZero(),
         allergies = allergies.orEmpty().ifBlank { "Ninguna" },
         neuteredStatus = neutered,
-        bloodType = bloodType.orEmpty().ifBlank { "No probado" }
+        bloodType = bloodType.orEmpty().ifBlank { "No probado" },
+        photoUrl = photoUrl.orEmpty()
     )
 }
 
@@ -103,7 +105,8 @@ fun PetUi.toCreateRequest(userId: Long): CreatePetRequest = CreatePetRequest(
     birthDate = birthDateFromAge(ageYears, ageMonths),
     allergies = allergies,
     neuteredStatus = neuteredBoolean(),
-    bloodType = bloodType
+    bloodType = bloodType,
+    photoUrl = photoUrl
 )
 
 fun PetUi.toUpdateRequest(): UpdatePetRequest = UpdatePetRequest(
@@ -117,7 +120,8 @@ fun PetUi.toUpdateRequest(): UpdatePetRequest = UpdatePetRequest(
     birthDate = birthDateFromAge(ageYears, ageMonths),
     bloodType = bloodType,
     allergies = allergies,
-    neuteredStatus = neuteredBoolean()
+    neuteredStatus = neuteredBoolean(),
+    photoUrl = photoUrl
 )
 
 // ── SERVICE ─────────────────────────────────────────────────────────────────

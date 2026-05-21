@@ -1,5 +1,8 @@
 package com.masterdog.app.ui.features.pets
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 data class PetFormState(
     val name: String = "",
@@ -51,11 +57,13 @@ data class PetFormState(
     val neuteredStatus: String = "Desconocido",
     val bloodType: String = "No probado",
     val nameError: String? = null,
-    val speciesError: String? = null
+    val speciesError: String? = null,
+    val photoUrl: String = "",      // URL existente cargada del servidor
+    val photoUri: Uri? = null       // URI local elegida desde galería (runtime)
 )
 
 private val GENDERS = listOf("Macho", "Hembra")
-private val SPECIES = listOf("Perro", "Gato", "Otro")
+private val SPECIES = listOf("Perro", "Gato")
 private val NEUTERED_STATUS = listOf("Desconocido", "Esterilizado", "No esterilizado")
 private val BLOOD_TYPES = listOf("No probado", "DEA 1.1+", "DEA 1.1-", "DEA 1.2+", "DEA 1.2-", "A", "B", "AB")
 private val COLOR_SWATCHES = listOf(
@@ -79,9 +87,13 @@ fun PetFormContent(
     var neuteredExpanded by remember { mutableStateOf(false) }
     var bloodExpanded by remember { mutableStateOf(false) }
 
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { onStateChange(state.copy(photoUri = it)) }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        // Foto avatar mock
+        // Foto avatar con galería
         Box(
             modifier = Modifier
                 .size(96.dp)
@@ -89,15 +101,29 @@ fun PetFormContent(
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .border(2.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), CircleShape)
                 .align(Alignment.CenterHorizontally)
-                .clickable { /* mock: no galería real */ },
+                .clickable { galleryLauncher.launch("image/*") },
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Outlined.CameraAlt,
-                contentDescription = "Agregar foto",
-                modifier = Modifier.size(36.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            when {
+                state.photoUri != null -> AsyncImage(
+                    model = state.photoUri,
+                    contentDescription = "Foto mascota",
+                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                state.photoUrl.isNotBlank() -> AsyncImage(
+                    model = state.photoUrl,
+                    contentDescription = "Foto mascota",
+                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                else -> Icon(
+                    imageVector = Icons.Outlined.CameraAlt,
+                    contentDescription = "Agregar foto",
+                    modifier = Modifier.size(36.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
 

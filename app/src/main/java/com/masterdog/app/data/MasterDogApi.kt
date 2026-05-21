@@ -6,8 +6,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface MasterDogApi {
+
+    // ── UPLOAD ──────────────────────────────────────────────────────────────
+    @GET("upload/presigned-url")
+    suspend fun getPresignedUrl(@Query("fileName") fileName: String): ApiEnvelope<PresignedUrlResult>
 
     // ── AUTH ────────────────────────────────────────────────────────────────
     @POST("usuario")

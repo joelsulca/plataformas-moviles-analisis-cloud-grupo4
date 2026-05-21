@@ -11,6 +11,10 @@ data class SimpleResult(
     val message: String? = null
 )
 
+// ── UPLOAD ──────────────────────────────────────────────────────────────────
+
+data class PresignedUrlResult(val url: String, val objectUrl: String)
+
 // ── AUTH ────────────────────────────────────────────────────────────────────
 
 data class RegisterRequest(

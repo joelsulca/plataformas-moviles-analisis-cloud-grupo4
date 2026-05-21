@@ -40,7 +40,8 @@ class UserProfileViewModel : ViewModel() {
                         firstName = updated.firstName,
                         lastName = updated.lastName,
                         phone = updated.phone,
-                        address = updated.address
+                        address = updated.address,
+                        photoUrl = updated.photoUrl
                     )
                 )
                 val result = response.data

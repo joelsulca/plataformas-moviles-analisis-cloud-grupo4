@@ -6,7 +6,8 @@ data class UserUi(
     val lastName: String,
     val email: String,
     val phone: String,
-    val address: String
+    val address: String,
+    val photoUrl: String = ""
 )
 
 data class PetUi(
@@ -20,7 +21,8 @@ data class PetUi(
     val weightKg: Float,
     val allergies: String,
     val neuteredStatus: String,
-    val bloodType: String
+    val bloodType: String,
+    val photoUrl: String = ""
 )
 
 enum class ServiceCategory { MEDICAL, AESTHETIC }
