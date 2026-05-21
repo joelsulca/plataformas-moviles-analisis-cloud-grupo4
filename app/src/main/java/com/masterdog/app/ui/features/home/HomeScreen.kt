@@ -40,24 +40,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.masterdog.app.R
-import com.masterdog.app.mock.AppointmentStatus
-import com.masterdog.app.mock.MockData
+import com.masterdog.app.data.Session
+import com.masterdog.app.data.AppointmentStatus
 import com.masterdog.app.ui.features.appointments.AppointmentsViewModel
+import com.masterdog.app.ui.features.pets.PetsViewModel
 import com.masterdog.app.ui.navigation.Screen
+import androidx.compose.runtime.LaunchedEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
-    appointmentsViewModel: AppointmentsViewModel = viewModel()
+    appointmentsViewModel: AppointmentsViewModel = viewModel(),
+    petsViewModel: PetsViewModel = viewModel()
 ) {
     val appointments by appointmentsViewModel.appointments.collectAsState()
+    val pets by petsViewModel.pets.collectAsState()
+    val firstName = Session.currentUser?.firstName?.ifBlank { "amigo" } ?: "amigo"
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Recarga citas cada vez que el Home pasa a RESUMED (incluyendo al volver
+    // de agendar una cita) y también cuando cambia la lista de mascotas.
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            petsViewModel.pets.collect { petList ->
+                appointmentsViewModel.loadForPets(petList.map { it.id })
+            }
+        }
+    }
+
     val upcomingApts = appointments.filter {
         it.status == AppointmentStatus.UPCOMING || it.status == AppointmentStatus.CONFIRMED
     }
@@ -84,7 +104,7 @@ fun HomeScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Hola, ${MockData.currentUser.firstName} 👋",
+                                text = "Hola, $firstName 👋",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White

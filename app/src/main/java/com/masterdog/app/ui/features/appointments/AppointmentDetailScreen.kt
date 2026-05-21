@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.AppointmentStatus
+import com.masterdog.app.data.AppointmentStatus
 import com.masterdog.app.ui.shared.components.ConfirmationDialog
 import com.masterdog.app.ui.shared.components.TopBar
 import kotlinx.coroutines.launch

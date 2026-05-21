@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.masterdog.app.mock.PetUi
+import com.masterdog.app.data.PetUi
 import com.masterdog.app.ui.navigation.Screen
 import com.masterdog.app.ui.shared.components.TopBar
 import kotlinx.coroutines.launch
@@ -65,7 +65,7 @@ fun PetAddScreen(
                         formState = validated
                         if (validated.isValid()) {
                             val newPet = PetUi(
-                                id = "pet-${System.currentTimeMillis()}",
+                                id = "",  // backend asigna el id real
                                 name = validated.name,
                                 species = validated.species,
                                 breed = validated.breed,
@@ -77,12 +77,13 @@ fun PetAddScreen(
                                 neuteredStatus = validated.neuteredStatus,
                                 bloodType = validated.bloodType
                             )
-                            petsViewModel.addPet(newPet)
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Mascota registrada correctamente")
-                            }
-                            navController.navigate(Screen.PetList.route) {
-                                popUpTo(Screen.PetList.route) { inclusive = true }
+                            petsViewModel.addPet(newPet) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Mascota registrada correctamente")
+                                }
+                                navController.navigate(Screen.PetList.route) {
+                                    popUpTo(Screen.PetList.route) { inclusive = true }
+                                }
                             }
                         }
                     },

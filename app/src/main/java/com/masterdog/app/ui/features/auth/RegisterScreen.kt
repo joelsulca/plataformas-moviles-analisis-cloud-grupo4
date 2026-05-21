@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
@@ -26,11 +27,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,11 +46,15 @@ import com.masterdog.app.ui.shared.components.TopBar
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(navController: NavController) {
+fun RegisterScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -54,22 +62,33 @@ fun RegisterScreen(navController: NavController) {
     var lastNameError by remember { mutableStateOf<String?>(null) }
     var phoneError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
+    var addressError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val loading by authViewModel.loading.collectAsState()
+    val authError by authViewModel.error.collectAsState()
+
+    LaunchedEffect(authError) {
+        authError?.let {
+            snackbarHostState.showSnackbar(it)
+            authViewModel.consumeError()
+        }
+    }
 
     fun validate(): Boolean {
         firstNameError = if (firstName.isBlank()) "El nombre es obligatorio" else null
         lastNameError = if (lastName.isBlank()) "Los apellidos son obligatorios" else null
         phoneError = if (phone.isBlank()) "El teléfono es obligatorio" else null
         emailError = if (email.isBlank()) "El correo es obligatorio" else null
+        addressError = if (address.isBlank()) "La dirección es obligatoria" else null
         passwordError = when {
             password.isBlank() -> "La contraseña es obligatoria"
             password.length < 8 -> "Mínimo 8 caracteres"
             else -> null
         }
-        return listOf(firstNameError, lastNameError, phoneError, emailError, passwordError).all { it == null }
+        return listOf(firstNameError, lastNameError, phoneError, emailError, addressError, passwordError).all { it == null }
     }
 
     Scaffold(
@@ -136,6 +155,18 @@ fun RegisterScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
+                value = address,
+                onValueChange = { address = it; addressError = null },
+                label = { Text("Dirección") },
+                leadingIcon = { Icon(Icons.Outlined.Home, contentDescription = null) },
+                isError = addressError != null,
+                supportingText = { addressError?.let { Text(it) } },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it; emailError = null },
                 label = { Text("Correo electrónico") },
@@ -173,17 +204,31 @@ fun RegisterScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (validate()) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("¡Cuenta creada exitosamente!")
-                        }
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                        val phoneE164 = if (phone.startsWith("+")) phone else "+51$phone"
+                        authViewModel.register(
+                            firstName = firstName.trim(),
+                            lastName = lastName.trim(),
+                            email = email.trim(),
+                            password = password,
+                            phone = phoneE164,
+                            address = address.trim()
+                        ) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("¡Cuenta creada exitosamente!")
+                            }
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Login.route) { inclusive = true }
+                            }
                         }
                     }
                 },
+                enabled = !loading,
                 modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
-                Text("Registrarse", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    if (loading) "Registrando…" else "Registrarse",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
             Spacer(modifier = Modifier.height(32.dp))
         }
