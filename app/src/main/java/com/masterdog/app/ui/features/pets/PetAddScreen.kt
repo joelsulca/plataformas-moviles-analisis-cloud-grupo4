@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -19,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ fun PetAddScreen(
     petsViewModel: PetsViewModel = viewModel()
 ) {
     var formState by remember { mutableStateOf(PetFormState()) }
+    var isUploading by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -70,46 +73,59 @@ fun PetAddScreen(
                         formState = validated
                         if (validated.isValid()) {
                             scope.launch {
-                                // Subir foto si se eligió una desde galería
-                                val photoUrl = validated.photoUri?.let { uri ->
-                                    val bytes = withContext(Dispatchers.IO) {
-                                        context.contentResolver.openInputStream(uri)?.readBytes()
-                                    }
-                                    if (bytes != null) {
-                                        PhotoUploader.upload(
-                                            "pet_${System.currentTimeMillis()}.jpg", bytes, "image/jpeg"
-                                        )
-                                    } else ""
-                                } ?: ""
+                                isUploading = true
+                                try {
+                                    val photoUrl = validated.photoUri?.let { uri ->
+                                        val bytes = withContext(Dispatchers.IO) {
+                                            context.contentResolver.openInputStream(uri)?.readBytes()
+                                        }
+                                        if (bytes != null) {
+                                            PhotoUploader.upload(
+                                                "pet_${System.currentTimeMillis()}.jpg", bytes, "image/jpeg"
+                                            )
+                                        } else ""
+                                    } ?: ""
 
-                                val newPet = PetUi(
-                                    id = "",
-                                    name = validated.name,
-                                    species = validated.species,
-                                    breed = validated.breed,
-                                    gender = validated.gender,
-                                    ageYears = validated.ageYears.toIntOrNull() ?: 0,
-                                    ageMonths = validated.ageMonths.toIntOrNull() ?: 0,
-                                    weightKg = validated.weightKg.toFloatOrNull() ?: 0f,
-                                    allergies = validated.allergies,
-                                    neuteredStatus = validated.neuteredStatus,
-                                    bloodType = validated.bloodType,
-                                    photoUrl = photoUrl
-                                )
-                                petsViewModel.addPet(newPet) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Mascota registrada correctamente")
+                                    val newPet = PetUi(
+                                        id = "",
+                                        name = validated.name,
+                                        species = validated.species,
+                                        breed = validated.breed,
+                                        gender = validated.gender,
+                                        ageYears = validated.ageYears.toIntOrNull() ?: 0,
+                                        ageMonths = validated.ageMonths.toIntOrNull() ?: 0,
+                                        weightKg = validated.weightKg.toFloatOrNull() ?: 0f,
+                                        allergies = validated.allergies,
+                                        neuteredStatus = validated.neuteredStatus,
+                                        bloodType = validated.bloodType,
+                                        photoUrl = photoUrl
+                                    )
+                                    petsViewModel.addPet(newPet) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Mascota registrada correctamente")
+                                        }
+                                        navController.navigate(Screen.PetList.route) {
+                                            popUpTo(Screen.PetList.route) { inclusive = true }
+                                        }
                                     }
-                                    navController.navigate(Screen.PetList.route) {
-                                        popUpTo(Screen.PetList.route) { inclusive = true }
-                                    }
+                                } finally {
+                                    isUploading = false
                                 }
                             }
                         }
                     },
+                    enabled = !isUploading,
                     modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
-                    Text("Guardar mascota", style = MaterialTheme.typography.titleMedium)
+                    if (isUploading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Guardar mascota", style = MaterialTheme.typography.titleMedium)
+                    }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
             }

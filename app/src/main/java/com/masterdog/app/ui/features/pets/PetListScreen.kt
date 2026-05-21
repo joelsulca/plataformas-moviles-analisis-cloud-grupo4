@@ -115,6 +115,7 @@ fun PetListScreen(
                         PetAvatarChip(
                             name = pet.name,
                             species = pet.species,
+                            photoUrl = pet.photoUrl,
                             isSelected = selectedPet?.id == pet.id,
                             onClick = { selectedPetId = pet.id; selectedTabIndex = 0 }
                         )
