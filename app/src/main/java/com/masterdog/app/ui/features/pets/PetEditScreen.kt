@@ -128,8 +128,8 @@ fun PetEditScreen(
                                 petsViewModel.updatePet(updated) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar("Perfil actualizado")
+                                        navController.popBackStack()
                                     }
-                                    navController.popBackStack()
                                 }
                             }
                         },
