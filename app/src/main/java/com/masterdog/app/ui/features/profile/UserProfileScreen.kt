@@ -31,10 +31,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +61,9 @@ fun UserProfileScreen(
     profileViewModel: UserProfileViewModel = viewModel()
 ) {
     val user = profileViewModel.user
+    val updateSuccess by profileViewModel.updateSuccess.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(lifecycleOwner) {
@@ -67,8 +72,16 @@ fun UserProfileScreen(
         }
     }
 
+    LaunchedEffect(updateSuccess) {
+        if (updateSuccess) {
+            snackbarHostState.showSnackbar("Perfil actualizado correctamente")
+            profileViewModel.consumeUpdateSuccess()
+        }
+    }
+
     Scaffold(
-        topBar = { TopBar(title = "Mi perfil", colored = true) }
+        topBar = { TopBar(title = "Mi perfil", colored = true) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

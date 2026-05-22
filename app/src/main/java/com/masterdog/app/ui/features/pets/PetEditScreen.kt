@@ -13,8 +13,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,9 +45,17 @@ fun PetEditScreen(
     var formState by remember { mutableStateOf(PetFormState()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var isUploading by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
+    var navigateToList by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    if (navigateToList) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Screen.PetList.route) {
+                popUpTo(Screen.PetList.route) { inclusive = true }
+            }
+        }
+    }
 
     LaunchedEffect(pet) {
         pet?.let {
@@ -94,7 +100,6 @@ fun PetEditScreen(
                 onBack = { navController.popBackStack() }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         if (pet == null) {
             Text(
@@ -150,12 +155,7 @@ fun PetEditScreen(
                                             photoUrl = photoUrl
                                         )
                                         petsViewModel.updatePet(updated) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Perfil actualizado")
-                                                navController.navigate(Screen.PetList.route) {
-                                                    popUpTo(Screen.PetList.route) { inclusive = true }
-                                                }
-                                            }
+                                            navigateToList = true
                                         }
                                     } finally {
                                         isUploading = false

@@ -26,6 +26,11 @@ class PetsViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _updateSuccess = MutableStateFlow(false)
+    val updateSuccess: StateFlow<Boolean> = _updateSuccess.asStateFlow()
+
+    fun consumeUpdateSuccess() { _updateSuccess.value = false }
+
     init { refresh() }
 
     fun refresh() {
@@ -61,9 +66,9 @@ class PetsViewModel : ViewModel() {
     fun updatePet(updated: PetUi, onDone: () -> Unit = {}) {
         viewModelScope.launch {
             try {
-                val response = api.updatePet(updated.toUpdateRequest())
-                val mapped = response.data.pet.toUi()
-                _pets.value = _pets.value.map { if (it.id == mapped.id) mapped else it }
+                api.updatePet(updated.toUpdateRequest())
+                _pets.value = _pets.value.map { if (it.id == updated.id) updated else it }
+                _updateSuccess.value = true
                 onDone()
             } catch (e: Exception) {
                 _error.value = "No se pudo actualizar la mascota"

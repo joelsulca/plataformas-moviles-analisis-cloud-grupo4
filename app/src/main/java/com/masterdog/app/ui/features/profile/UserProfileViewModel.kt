@@ -27,6 +27,11 @@ class UserProfileViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _updateSuccess = MutableStateFlow(false)
+    val updateSuccess: StateFlow<Boolean> = _updateSuccess.asStateFlow()
+
+    fun consumeUpdateSuccess() { _updateSuccess.value = false }
+
     fun refreshFromSession() {
         Session.currentUser?.let { user = it }
     }
@@ -53,6 +58,7 @@ class UserProfileViewModel : ViewModel() {
                 val saved = userDto.toUi()
                 user = saved
                 Session.set(saved)
+                _updateSuccess.value = true
                 onDone()
             } catch (e: Exception) {
                 _error.value = "No se pudo actualizar el perfil"

@@ -32,7 +32,7 @@ interface MasterDogApi {
     suspend fun createPet(@Body body: CreatePetRequest): ApiEnvelope<PetMutationResult>
 
     @PUT("mascota")
-    suspend fun updatePet(@Body body: UpdatePetRequest): ApiEnvelope<PetMutationResult>
+    suspend fun updatePet(@Body body: UpdatePetRequest): ApiEnvelope<SimpleResult>
 
     @DELETE("mascota/{petId}")
     suspend fun deletePet(@Path("petId") petId: Long): ApiEnvelope<SimpleResult>

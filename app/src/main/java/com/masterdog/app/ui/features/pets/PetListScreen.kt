@@ -24,6 +24,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -60,9 +62,18 @@ fun PetListScreen(
 ) {
     val pets by petsViewModel.pets.collectAsState()
     val appointments by appointmentsViewModel.appointments.collectAsState()
+    val updateSuccess by petsViewModel.updateSuccess.collectAsState()
     var selectedPetId by remember { mutableStateOf<String?>(null) }
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(updateSuccess) {
+        if (updateSuccess) {
+            snackbarHostState.showSnackbar("Perfil actualizado correctamente")
+            petsViewModel.consumeUpdateSuccess()
+        }
+    }
 
     // Recarga mascotas cada vez que la pantalla es visible (incluido primer acceso post-login)
     LaunchedEffect(lifecycleOwner) {
@@ -87,7 +98,8 @@ fun PetListScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar mascota")
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         if (pets.isEmpty()) {
             EmptyStateView(

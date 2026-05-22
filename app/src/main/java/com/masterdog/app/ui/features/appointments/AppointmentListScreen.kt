@@ -141,6 +141,7 @@ fun AppointmentListScreen(
                     PetAvatarChip(
                         name = pet.name,
                         species = pet.species,
+                        photoUrl = pet.photoUrl,
                         isSelected = selectedPetId == pet.id,
                         onClick = { selectedPetId = pet.id }
                     )

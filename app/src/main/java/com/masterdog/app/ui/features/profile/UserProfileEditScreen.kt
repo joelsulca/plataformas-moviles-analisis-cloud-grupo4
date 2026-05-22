@@ -32,8 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -77,7 +75,6 @@ fun UserProfileEditScreen(
     var firstNameError by remember { mutableStateOf<String?>(null) }
     var lastNameError by remember { mutableStateOf<String?>(null) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -139,9 +136,6 @@ fun UserProfileEditScreen(
                                                 photoUrl = newPhotoUrl
                                             )
                                         ) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Perfil actualizado correctamente")
-                                            }
                                             navController.popBackStack()
                                         }
                                     } finally {
@@ -160,7 +154,6 @@ fun UserProfileEditScreen(
                 )
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
