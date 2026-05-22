@@ -19,13 +19,6 @@ private fun Any?.idString(): String = when (this) {
     else -> this.toString()
 }
 
-private fun Any?.toBooleanOrFalse(): Boolean = when (this) {
-    is Boolean -> this
-    is String -> this.equals("true", ignoreCase = true) || this == "1"
-    is Number -> this.toInt() != 0
-    else -> false
-}
-
 private fun Any?.toFloatOrZero(): Float = when (this) {
     is Number -> this.toFloat()
     is String -> this.toFloatOrNull() ?: 0f
